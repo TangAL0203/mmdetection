@@ -3,7 +3,8 @@ _base_ = [
 ]
 model = dict(
     type='DeformableDETR',
-    num_queries=300,
+    # num_queries=300,
+    num_queries=100,
     num_feature_levels=4,
     with_box_refine=False,
     as_two_stage=False,
@@ -13,26 +14,36 @@ model = dict(
         std=[58.395, 57.12, 57.375],
         bgr_to_rgb=True,
         pad_size_divisor=1),
+    # backbone=dict(
+    #     type='ResNet',
+    #     depth=50,
+    #     num_stages=4,
+    #     out_indices=(1, 2, 3),
+    #     frozen_stages=1,
+    #     norm_cfg=dict(type='BN', requires_grad=False),
+    #     norm_eval=True,
+    #     style='pytorch',
+    #     init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
     backbone=dict(
         type='ResNet',
-        depth=50,
+        depth=18,
         num_stages=4,
         out_indices=(1, 2, 3),
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
         norm_eval=True,
-        style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+        style='pytorch'),
     neck=dict(
         type='ChannelMapper',
-        in_channels=[512, 1024, 2048],
+        in_channels=[128, 256, 512],
         kernel_size=1,
         out_channels=256,
         act_cfg=None,
         norm_cfg=dict(type='GN', num_groups=32),
         num_outs=4),
     encoder=dict(  # DeformableDetrTransformerEncoder
-        num_layers=6,
+        # num_layers=6,
+        num_layers=2,
         layer_cfg=dict(  # DeformableDetrTransformerEncoderLayer
             self_attn_cfg=dict(  # MultiScaleDeformableAttention
                 embed_dims=256,
@@ -40,7 +51,8 @@ model = dict(
             ffn_cfg=dict(
                 embed_dims=256, feedforward_channels=1024, ffn_drop=0.1))),
     decoder=dict(  # DeformableDetrTransformerDecoder
-        num_layers=6,
+        # num_layers=6,
+        num_layers=2,
         return_intermediate=True,
         layer_cfg=dict(  # DeformableDetrTransformerDecoderLayer
             self_attn_cfg=dict(  # MultiheadAttention
@@ -153,4 +165,5 @@ param_scheduler = [
 # NOTE: `auto_scale_lr` is for automatically scaling LR,
 # USER SHOULD NOT CHANGE ITS VALUES.
 # base_batch_size = (16 GPUs) x (2 samples per GPU)
-auto_scale_lr = dict(base_batch_size=32)
+# auto_scale_lr = dict(base_batch_size=32)
+auto_scale_lr = dict(base_batch_size=1)

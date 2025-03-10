@@ -16,17 +16,18 @@ data_root = 'data/coco/'
 #         'data/': 's3://openmmlab/datasets/detection/'
 #     }))
 backend_args = None
+img_size = (128, 128)
 
 train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', scale=(1333, 800), keep_ratio=True),
+    dict(type='Resize', scale=img_size, keep_ratio=False),
     dict(type='RandomFlip', prob=0.5),
     dict(type='PackDetInputs')
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='Resize', scale=(1333, 800), keep_ratio=True),
+    dict(type='Resize', scale=img_size, keep_ratio=False),
     # If you don't have a gt annotation, delete the pipeline
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
@@ -35,9 +36,12 @@ test_pipeline = [
                    'scale_factor'))
 ]
 train_dataloader = dict(
-    batch_size=2,
-    num_workers=2,
-    persistent_workers=True,
+    # batch_size=2,
+    # num_workers=2,
+    batch_size=1,
+    num_workers=0,
+    # persistent_workers=True,
+    persistent_workers=False,
     sampler=dict(type='DefaultSampler', shuffle=True),
     batch_sampler=dict(type='AspectRatioBatchSampler'),
     dataset=dict(
@@ -50,8 +54,9 @@ train_dataloader = dict(
         backend_args=backend_args))
 val_dataloader = dict(
     batch_size=1,
-    num_workers=2,
-    persistent_workers=True,
+    num_workers=0,
+    # persistent_workers=True,
+    persistent_workers=False,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
     dataset=dict(
